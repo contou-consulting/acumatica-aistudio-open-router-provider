@@ -1,0 +1,46 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<!-- SITE SETTINGS -->
+<!-- AcumaticaSiteDir must point at a local 26R2 (26.200.x) site, with a trailing backslash.
+     Every Acumatica assembly is compiled against that site's Bin. Override it on the command line
+     (dotnet build -p:AcumaticaSiteDir=C:\AcumaticaSites\MySite\) or in a git-ignored
+     src\acumatica.user.props. The default expects the site next to the repo root. -->
+<Import Project="acumatica.user.props" Condition="Exists('$(MSBuildThisFileDirectory)acumatica.user.props')" />
+<PropertyGroup>
+   <AcumaticaSiteDir Condition="'$(AcumaticaSiteDir)' == ''">..\..\AcumaticaSite\</AcumaticaSiteDir>
+   <CustDir>..\..\cust\$(AssemblyName)\</CustDir>
+   <CustBuildZip>..\..\$(AssemblyName)</CustBuildZip>
+   <AcuVersion>26.200</AcuVersion>
+</PropertyGroup>
+<!-- SITE SETTINGS END -->
+
+<!-- HOST-PROVIDED PACKAGES -->
+<!-- Any NuGet package referenced here is already in the Acumatica site's Bin at runtime.
+     Compile against it but never copy it into the customization output. -->
+<ItemDefinitionGroup>
+   <PackageReference>
+      <ExcludeAssets>runtime</ExcludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+   </PackageReference>
+</ItemDefinitionGroup>
+<PropertyGroup>
+   <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3277</MSBuildWarningsAsMessages>
+</PropertyGroup>
+<!-- HOST-PROVIDED PACKAGES END -->
+
+<!-- TARGETS -->
+	<Target Name="CheckSiteDir" BeforeTargets="ResolveAssemblyReferences">
+		<Error Condition="!Exists('$(AcumaticaSiteDir)Bin\PX.Data.dll')"
+		       Text="AcumaticaSiteDir '$(AcumaticaSiteDir)' is not an Acumatica site (no Bin\PX.Data.dll). Pass -p:AcumaticaSiteDir=&lt;site folder&gt;\ or create src\acumatica.user.props." />
+	</Target>
+	<!-- Debug: drop the DLL into the local site's Bin for live debugging (restarts the app domain). -->
+	<Target Name="DebugBuild" Condition="'$(Configuration)' == 'Debug'">
+		<Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(AcumaticaSiteDir)Bin\" SkipUnchangedFiles="False" />
+	</Target>
+	<!-- Release: stage the DLL in cust\ and package the customization project zip at the repo root. -->
+	<Target Name="ReleaseBuild" Condition="'$(Configuration)' == 'Release'">
+		<Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(CustDir)Bin\" SkipUnchangedFiles="False" />
+		<Exec Command="&quot;$(AcumaticaSiteDir)Bin\PX.CommandLine.exe&quot; /method BuildProject /in &quot;$(CustDir.TrimEnd('\'))&quot; /out &quot;$(CustBuildZip).zip&quot; /level $(Level)" />
+		<Message Text="Packaged $(CustBuildZip).zip" Importance="high" />
+	</Target>
+<!-- TARGETS END -->
+</Project>

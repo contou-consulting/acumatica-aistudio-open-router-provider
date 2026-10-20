@@ -1,0 +1,20 @@
+# IDE
+/.vs
+/.idea
+/src/.vs
+/src/.idea
+*.user
+
+# Build output
+/src/*/bin
+/src/*/obj
+
+# Local site path override
+/src/acumatica.user.props
+
+# Customization build output
+/cust/*/Bin
+/*.zip
+
+# Local Acumatica site, if kept next to the repo
+/AcumaticaSite

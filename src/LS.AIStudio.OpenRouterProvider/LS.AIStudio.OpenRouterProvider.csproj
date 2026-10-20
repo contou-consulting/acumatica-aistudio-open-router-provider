@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <BaseOutputPath>bin\</BaseOutputPath>
+    <LangVersion>latest</LangVersion>
+    <Configurations>Debug;Release</Configurations>
+    <Level>30</Level>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>TRACE;DEBUG;</DefineConstants>
+  </PropertyGroup>
+  <Import Project="..\acumatica.targets" />
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="8.1.1" />
+  </ItemGroup>
+  <!-- Host-only assemblies: PX.* is not on nuget.org, PX.AIStudio has no package at all, and the
+       OpenAI / Microsoft.Extensions.AI builds on nuget.org differ from the ones the site loads,
+       so compile against the exact Bin copies. -->
+  <ItemGroup>
+    <Reference Include="PX.Common">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(AcumaticaSiteDir)Bin\PX.Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="PX.Data">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(AcumaticaSiteDir)Bin\PX.Data.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="PX.AIStudio">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(AcumaticaSiteDir)Bin\PX.AIStudio.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.AI.Abstractions">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(AcumaticaSiteDir)Bin\Microsoft.Extensions.AI.Abstractions.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.AI.OpenAI">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(AcumaticaSiteDir)Bin\Microsoft.Extensions.AI.OpenAI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="OpenAI">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(AcumaticaSiteDir)Bin\OpenAI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.ClientModel">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(AcumaticaSiteDir)Bin\System.ClientModel.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Build Settings -->
+  <Target Name="BuildProjectAndPackage" AfterTargets="Build">
+    <CallTarget Targets="DebugBuild;ReleaseBuild" />
+  </Target>
+</Project>

@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Info/">
+    <File Path=".gitignore" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+    <File Path="src/acumatica.targets" />
+  </Folder>
+  <Project Path="src/LS.AIStudio.OpenRouterProvider/LS.AIStudio.OpenRouterProvider.csproj" />
+</Solution>
